@@ -1,0 +1,17 @@
+[package]
+name          = "bite"
+version       = "0.0.3"
+authors       = ["hinaria <a@hinaria.com>"]
+description   = "read and write bytes in specific endian encodings"
+
+documentation = "https://docs.hinaria.com/p/bite"
+homepage      = "https://code.hinaria.com/p/bite"
+repository    = "https://github.com/hinaria/bite"
+
+license       = "MIT/Apache-2.0"
+categories    = ["encoding", "parsing"]
+keywords      = ["binary", "byte", "endian", "big-endian", "little-endian"]
+
+build         = "build.rs"
+include       = ["src/*", "build.rs", "Cargo.toml"]
+exclude       = ["src/main.rs"]
