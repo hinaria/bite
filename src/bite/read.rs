@@ -1,10 +1,13 @@
-use std;
-use std::io::Read;
+use {
+    std,
+    std::io::Read,
 
-use bite::Endianness;
+    bite::Endianness,
+};
 
 
-pub trait BiteReadExt: Read {
+
+pub trait BiteReadExpandedExt: Read {
     #[inline]
     fn read_u8(&mut self) -> Result<u8, std::io::Error> {
         let mut data = [0; 1];
@@ -38,6 +41,24 @@ pub trait BiteReadExt: Read {
         self.read_exact(&mut data)?;
 
         let v = T::read_i16(&data);
+        Ok(v)
+    }
+
+    #[inline]
+    fn read_u24<T: Endianness>(&mut self) -> Result<u32, std::io::Error> {
+        let mut data = [0; 4];
+        self.read_exact(&mut data)?;
+
+        let v = T::read_u24(&data);
+        Ok(v)
+    }
+
+    #[inline]
+    fn read_i24<T: Endianness>(&mut self) -> Result<i32, std::io::Error> {
+        let mut data = [0; 4];
+        self.read_exact(&mut data)?;
+
+        let v = T::read_i24(&data);
         Ok(v)
     }
 
@@ -149,6 +170,90 @@ pub trait BiteReadExt: Read {
         Ok(v)
     }
 
+
+
+    #[inline]
+    fn read_slice_u16<T: Endianness>(&mut self, values: &mut [u16]) -> Result<(), std::io::Error> {
+        self.read_exact(unsafe { as_mutable_data(values) })?;
+
+        T::convert_slice_u16(values);
+        Ok(())
+    }
+
+    #[inline]
+    fn read_slice_i16<T: Endianness>(&mut self, values: &mut [i16]) -> Result<(), std::io::Error> {
+        self.read_exact(unsafe { as_mutable_data(values) })?;
+
+        T::convert_slice_i16(values);
+        Ok(())
+    }
+
+    #[inline]
+    fn read_slice_u32<T: Endianness>(&mut self, values: &mut [u32]) -> Result<(), std::io::Error> {
+        self.read_exact(unsafe { as_mutable_data(values) })?;
+
+        T::convert_slice_u32(values);
+        Ok(())
+    }
+
+    #[inline]
+    fn read_slice_i32<T: Endianness>(&mut self, values: &mut [i32]) -> Result<(), std::io::Error> {
+        self.read_exact(unsafe { as_mutable_data(values) })?;
+
+        T::convert_slice_i32(values);
+        Ok(())
+    }
+
+    #[inline]
+    fn read_slice_u64<T: Endianness>(&mut self, values: &mut [u64]) -> Result<(), std::io::Error> {
+        self.read_exact(unsafe { as_mutable_data(values) })?;
+
+        T::convert_slice_u64(values);
+        Ok(())
+    }
+
+    #[inline]
+    fn read_slice_i64<T: Endianness>(&mut self, values: &mut [i64]) -> Result<(), std::io::Error> {
+        self.read_exact(unsafe { as_mutable_data(values) })?;
+
+        T::convert_slice_i64(values);
+        Ok(())
+    }
+
+    #[inline]
+    fn read_slice_u128<T: Endianness>(&mut self, values: &mut [u128]) -> Result<(), std::io::Error> {
+        self.read_exact(unsafe { as_mutable_data(values) })?;
+
+        T::convert_slice_u128(values);
+        Ok(())
+    }
+
+    #[inline]
+    fn read_slice_i128<T: Endianness>(&mut self, values: &mut [i128]) -> Result<(), std::io::Error> {
+        self.read_exact(unsafe { as_mutable_data(values) })?;
+
+        T::convert_slice_i128(values);
+        Ok(())
+    }
+
+    #[inline]
+    fn read_slice_f32<T: Endianness>(&mut self, values: &mut [f32]) -> Result<(), std::io::Error> {
+        self.read_exact(unsafe { as_mutable_data(values) })?;
+
+        T::convert_slice_f32(values);
+        Ok(())
+    }
+
+    #[inline]
+    fn read_slice_f64<T: Endianness>(&mut self, values: &mut [f64]) -> Result<(), std::io::Error> {
+        self.read_exact(unsafe { as_mutable_data(values) })?;
+
+        T::convert_slice_f64(values);
+        Ok(())
+    }
+
+
+
     #[inline]
     fn read_framed<T: Endianness>(&mut self) -> Result<Vec<u8>, std::io::Error> {
         self.read_framed_max::<T>(std::usize::MAX)
@@ -173,4 +278,13 @@ pub trait BiteReadExt: Read {
     }
 }
 
-impl<T> BiteReadExt for T where T: std::io::Read + ?Sized { }
+impl<T> BiteReadExpandedExt for T where T: std::io::Read + ?Sized { }
+
+
+
+unsafe fn as_mutable_data<T: Copy>(data: &mut [T]) -> &mut [u8] {
+    let source = data.as_mut_ptr() as *mut u8;
+    let length = std::mem::size_of::<T>() * data.len();
+
+    std::slice::from_raw_parts_mut(source, length)
+}

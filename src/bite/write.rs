@@ -1,10 +1,13 @@
-use std;
-use std::io::Write;
+use {
+    std,
+    std::io::Write,
 
-use bite::Endianness;
+    bite::Endianness,
+};
 
 
-pub trait BiteWriteExt: Write {
+
+pub trait BiteWriteExpandedExt: Write {
     #[inline]
     fn write_u8(&mut self, value: u8) -> Result<(), std::io::Error> {
         self.write_all(&[value])
@@ -27,6 +30,22 @@ pub trait BiteWriteExt: Write {
     fn write_i16<T: Endianness>(&mut self, value: i16) -> Result<(), std::io::Error> {
         let mut data = [0; 2];
         T::write_i16(&mut data, value);
+
+        self.write_all(&data)
+    }
+
+    #[inline]
+    fn write_u24<T: Endianness>(&mut self, value: u32) -> Result<(), std::io::Error> {
+        let mut data = [0; 4];
+        T::write_u24(&mut data, value);
+
+        self.write_all(&data)
+    }
+
+    #[inline]
+    fn write_i24<T: Endianness>(&mut self, value: i32) -> Result<(), std::io::Error> {
+        let mut data = [0; 4];
+        T::write_i24(&mut data, value);
 
         self.write_all(&data)
     }
@@ -137,4 +156,4 @@ pub trait BiteWriteExt: Write {
     }
 }
 
-impl<T> BiteWriteExt for T where T: Write + ?Sized { }
+impl<T> BiteWriteExpandedExt for T where T: Write + ?Sized { }

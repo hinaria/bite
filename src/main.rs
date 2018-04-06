@@ -11,7 +11,10 @@ pub fn main() {
 }
 
 fn big() {
-    use bite::{ BigEndian, BiteReadExt };
+    use {
+        bite::BigEndian,
+        bite::BiteReadExpandedExt,
+    };
 
     let mut reader = Cursor::new(vec![2, 5, 3, 0]);
     assert_eq!(517, reader.read_u16::<BigEndian>().unwrap());
@@ -23,7 +26,9 @@ fn big() {
 }
 
 fn little() {
-    use bite::{ BiteReadLeExt };
+    use {
+        bite::BiteReadExt,
+    };
 
     let mut reader = Cursor::new(vec![5, 2, 0, 3]);
     assert_eq!(517, reader.read_u16().unwrap());
